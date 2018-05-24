@@ -31,14 +31,18 @@ class Client {
     private void writeToServer() {
         Scanner scanner = new Scanner(System.in);
 
-        while (true) {
+        while (!client.isClosed()) {
             if (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
                 printWriter.println(line);
                 if ("quit".equalsIgnoreCase(line)) {
+                    try {
+                        client.close();
+                    } catch (IOException e) {
+                        consumer.accept(e.getMessage());
+                    }
                     printWriter.close();
                     scanner.close();
-                    System.exit(0);
                 }
             }
         }
@@ -49,7 +53,8 @@ class Client {
     private void readFromServer() {
         try {
             Scanner scanner = new Scanner(client.getInputStream());
-            while (true) {
+
+            while (!client.isClosed()) {
                 if (scanner.hasNextLine()) {
                     String line = scanner.nextLine();
                     consumer.accept(line);
