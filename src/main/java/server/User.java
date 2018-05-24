@@ -4,13 +4,15 @@ import java.net.Socket;
 
 public class User {
     private ChatMediator mediator;
+    private final MessageSender messageSender;
     private Socket socket;
     private String userName;
 
-    public User(Socket socket, String userName, ChatMediator chatMediator) {
+    public User(Socket socket, String userName, ChatMediator chatMediator, MessageSender messageSender) {
         this.userName = userName;
         this.socket = socket;
         this.mediator = chatMediator;
+        this.messageSender = messageSender;
         mediator.attachUser(this);
     }
 
@@ -20,7 +22,7 @@ public class User {
 
     public void receive(String message, String senderName) {
         message = senderName + ": " + message;
-        Server.sendMessageToClient(socket, message);
+        messageSender.sendMessageToClient(socket, message);
     }
 
     public String getUserName() {
