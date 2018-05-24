@@ -6,16 +6,16 @@ import java.net.Socket;
 import java.util.Scanner;
 import java.util.function.Consumer;
 
-public class Server {
+class Server {
     private final ChatMediator chatMediator = new ChatMediator();
     private Consumer<String> consumer;
     private MessageSender messageSender = new MessageSender();
 
-    public Server(Consumer<String> consumer) {
+    Server(Consumer<String> consumer) {
         this.consumer = consumer;
     }
 
-    public void startServer() {
+    void startServer() {
 
         try {
             ServerSocket serverSocket = new ServerSocket(8189);

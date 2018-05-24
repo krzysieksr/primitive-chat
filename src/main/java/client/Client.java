@@ -1,32 +1,39 @@
 package client;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
+import java.util.function.Consumer;
 
-public class Client {
-    public static void main(String[] args) {
+class Client {
 
+    private final Consumer<String> consumer;
+    private Socket client;
+    private PrintWriter printWriter;
+
+    Client(Consumer<String> consumer) {
+        this.consumer = consumer;
         try {
-            Socket client = new Socket("localhost", 8189);
-            new Thread(() -> writeToServer(client)).start();
-            new Thread(() -> readFromServer(client)).start();
+            this.client = new Socket("localhost", 8189);
+            this.printWriter = new PrintWriter(client.getOutputStream(), true);
         } catch (IOException e) {
-            e.printStackTrace();
+            consumer.accept(e.getMessage());
         }
-
     }
 
-    private static void writeToServer(Socket client) {
-        PrintWriter printWriter = getPrintWriter(client);
+    void connect() {
+        new Thread(() -> writeToServer()).start();
+        new Thread(() -> readFromServer()).start();
+    }
+
+
+    private void writeToServer() {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
             if (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
-
                 printWriter.println(line);
                 if ("quit".equalsIgnoreCase(line)) {
                     printWriter.close();
@@ -38,29 +45,19 @@ public class Client {
 
     }
 
-    private static PrintWriter getPrintWriter(Socket client) {
-        OutputStream outputStream = null;
-        try {
-            outputStream = client.getOutputStream();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return new PrintWriter(outputStream, true);
-    }
 
-
-    private static void readFromServer(Socket client) {
+    private void readFromServer() {
         try {
             Scanner scanner = new Scanner(client.getInputStream());
             while (true) {
                 if (scanner.hasNextLine()) {
                     String line = scanner.nextLine();
-                    System.out.println(line);
+                    consumer.accept(line);
                 }
 
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            consumer.accept(e.getMessage());
         }
     }
 }
