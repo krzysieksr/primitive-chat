@@ -7,10 +7,10 @@ public class User {
     private Socket socket;
     private String userName;
 
-    public User(Socket socket, String userName) {
+    public User(Socket socket, String userName, ChatMediator chatMediator) {
         this.userName = userName;
         this.socket = socket;
-        this.mediator = ChatMediator.getChatMediator();
+        this.mediator = chatMediator;
         mediator.attachUser(this);
     }
 

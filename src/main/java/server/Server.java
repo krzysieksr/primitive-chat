@@ -8,13 +8,14 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class Server {
+    static ChatMediator chatMediator = new ChatMediator();
 
     public static void main(String[] args) throws IOException {
         ServerSocket serverSocket = new ServerSocket(8189);
         while (true) {
-            Socket user = serverSocket.accept();
+            Socket client = serverSocket.accept();
 
-            new Thread(() -> handleClientInput(user)).start();
+            new Thread(() -> handleClientInput(client)).start();
         }
     }
 
@@ -22,10 +23,11 @@ public class Server {
     private static void handleClientInput(Socket client) {
         sendMessageToClient(client, "Hello from server:)");
 
+
         try {
-            sendMessageToClient(client,"Introduce yourself:");
+            sendMessageToClient(client, "Introduce yourself:");
             Scanner scanner = new Scanner(client.getInputStream());
-            User user = new User(client, scanner.nextLine());
+            User user = new User(client, scanner.nextLine(), chatMediator);
             while (true) {
                 if (scanner.hasNextLine()) {
                     String line = scanner.nextLine();
@@ -33,7 +35,7 @@ public class Server {
                     user.send(line);
                     if ("quit".equalsIgnoreCase(line)) {
                         scanner.close();
-                        ChatMediator.getChatMediator().detachUser(user);
+                        chatMediator.detachUser(user);
                         break;
                     }
                 }
