@@ -1,0 +1,10 @@
+/out/
+.idea/**/workspace.xml
+*.jar
+*.zip
+*.iml
+.idea/
+target/
+test-output/
+assets/
+out/*
